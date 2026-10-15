@@ -33,7 +33,7 @@ public class CourierController {
     }
 
     @GetMapping("/available")
-    public CourierResponseDto getAvailableCouriers() {
+    public CourierResponseDto getAvailableCourier() {
         return courierService.getAvailableCourier();
     }
 }
