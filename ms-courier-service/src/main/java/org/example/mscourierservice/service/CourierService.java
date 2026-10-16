@@ -47,7 +47,7 @@ public class CourierService {
         var result = courierRepository.findFirstByStatus(FREE);
 
         if (result == null) {
-            throw new RuntimeException("Courier not found");
+           return null;
         }
         return courierMapper.toCourierResponseDto(result);
 

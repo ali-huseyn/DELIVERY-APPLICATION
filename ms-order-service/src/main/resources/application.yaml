@@ -1,6 +1,7 @@
 spring:
   application:
     name: ms-order-service
+
   datasource:
     url: jdbc:postgresql://localhost:5432/order_db
     username: postgres
@@ -11,3 +12,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+server:
+  port: 8082
+  address: localhost
