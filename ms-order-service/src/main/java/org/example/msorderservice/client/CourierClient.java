@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @FeignClient(
         name = "ms-courier-service",
-        url = "http://localhost:8081"
+        url = "http://localhost:8081/couriers"
 )
 public interface CourierClient {
-    @GetMapping("/couriers/available")
+    @GetMapping("/available")
     CourierResponseDto getAvailableCourier();
 }
