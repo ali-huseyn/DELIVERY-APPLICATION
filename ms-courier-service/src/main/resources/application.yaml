@@ -3,7 +3,7 @@ spring:
   application:
     name: ms-courier-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/courier_db
+    url: jdbc:postgresql://localhost:5433/courier-db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
