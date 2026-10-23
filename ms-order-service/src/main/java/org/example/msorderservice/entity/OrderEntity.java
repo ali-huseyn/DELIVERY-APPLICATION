@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name="orders")
+@Table(name = "orders")
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,11 +25,13 @@ public class OrderEntity {
 
     private Long courierId;
     @Column(nullable = false)
+    private String courierName;
 
     private String deliveryAddress;
 
 
     private BigDecimal deliveryPrice;
+    private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

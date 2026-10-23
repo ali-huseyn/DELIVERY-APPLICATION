@@ -15,6 +15,7 @@ public class OrderResponseDto {
     private String pickupAddress;
     private String deliveryAddress;
     private Long courierId;
+    private String courierName;
     private BigDecimal deliveryPrice;
     private OrderStatus orderStatus;
 
