@@ -24,7 +24,7 @@ public class OrderEntity {
     private String pickupAddress;
 
     private Long courierId;
-    @Column(nullable = false)
+
     private String courierName;
 
     private String deliveryAddress;

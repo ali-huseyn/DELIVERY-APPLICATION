@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.mscourierservice.dto.CourierRequestDto;
 import org.example.mscourierservice.dto.CourierResponseDto;
 import org.example.mscourierservice.entity.CourierEntity;
+import org.example.mscourierservice.enums.CourierStatus;
 import org.example.mscourierservice.exception.CourierNotFound;
 import org.example.mscourierservice.exception.NoAvailableCourierException;
 import org.example.mscourierservice.mapper.CourierMapper;
@@ -61,6 +62,11 @@ public class CourierService {
 
         return courierMapper.toCourierResponseDto(result);
 
+    }
+    public void updateCourierStatus(Long id, CourierStatus status) {
+        var courier = fetchCourierById(id);
+        courier.setStatus(status);
+        courierRepository.save(courier);
     }
 
 

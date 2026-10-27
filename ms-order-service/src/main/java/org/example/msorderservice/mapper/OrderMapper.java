@@ -14,6 +14,7 @@ public interface OrderMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "courierId", source = "courier.id")
+    @Mapping(target = "courierName", source = "courier.name")
     @Mapping(target = "deliveryPrice", source = "earnMany")
     @Mapping(target = "orderStatus", constant = "ASSIGNED")
     OrderEntity toEntity(OrderRequestDto orderRequestDto, CourierResponseDto courier, BigDecimal earnMany);

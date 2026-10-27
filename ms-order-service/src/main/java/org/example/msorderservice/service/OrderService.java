@@ -10,6 +10,7 @@ import org.example.msorderservice.dto.OrderRequestDto;
 import org.example.msorderservice.dto.OrderResponseDto;
 import org.example.msorderservice.entity.OrderEntity;
 import org.example.msorderservice.entity.OrderHistoryEntity;
+import org.example.msorderservice.enums.CourierStatus;
 import org.example.msorderservice.exception.InvalidOrderStatusException;
 import org.example.msorderservice.exception.OrderNotFound;
 import org.example.msorderservice.mapper.OrderHistoryMapper;
@@ -55,6 +56,7 @@ public class OrderService {
 
             if (ex.status() == 409) {
                 order = orderMapper.toRejectedEntity(orderRequestDto);
+                order.setDeliveryPrice(BigDecimal.ZERO);
                 log.info("Order rejected because courier is not available");
             } else {
                 throw ex;
@@ -65,17 +67,30 @@ public class OrderService {
 
 
         var saveOrder = orderRepository.save(order);
+        if (saveOrder.getOrderStatus() == ASSIGNED) {
+            courierClient.updateCourierStatus(saveOrder.getCourierId(), CourierStatus.BUSY);
+        }
+
         var orderHistoryEntity = new OrderHistoryEntity();
         orderHistoryEntity = orderHistoryMapper.toOrderHistoryEntity(saveOrder);
         orderHistoryRepository.save(orderHistoryEntity);
+
+        log.info("Order history saved. orderId={}", saveOrder.getId());
         return orderMapper.toResponseDto(saveOrder);
 
 
     }
 
     public OrderResponseDto getOrderById(Long id) {
-        var Order = fetchOrderId(id);
-        return orderMapper.toResponseDto(Order);
+
+        log.info("Fetching order by id={}", id);
+
+        var order = fetchOrderId(id);
+
+        log.info("Order found. orderId={}, status={}", order.getId(), order.getOrderStatus());
+        return orderMapper.toResponseDto(order);
+
+
     }
 
 
@@ -89,6 +104,8 @@ public class OrderService {
         order.setOrderStatus(PICKED_UP);
         log.info("Order picked up for order {}", orderId);
         var saveOrder = orderRepository.save(order);
+
+        log.info("Order picked up successfully. orderId={}, status={}", orderId, saveOrder.getOrderStatus());
 
         var orderHistoryEntity = new OrderHistoryEntity();
         orderHistoryEntity = orderHistoryMapper.toOrderHistoryEntity(saveOrder);
@@ -107,6 +124,14 @@ public class OrderService {
         order.setOrderStatus(DELIVERED);
 
         var saveOrder = orderRepository.save(order);
+        log.info("Order delivered successfully. orderId={}", orderId);
+        if (saveOrder.getOrderStatus() == DELIVERED) {
+            courierClient.updateCourierStatus(saveOrder.getCourierId(), CourierStatus.FREE);
+        }
+        log.info(
+                "Courier status updated to FREE. courierId={}",
+                saveOrder.getCourierId()
+        );
         var orderHistoryEntity = new OrderHistoryEntity();
         orderHistoryEntity = orderHistoryMapper.toOrderHistoryEntity(saveOrder);
         orderHistoryRepository.save(orderHistoryEntity);
@@ -116,7 +141,16 @@ public class OrderService {
 
     public CourierResponseDto getAvailableCourier() {
 
-        return courierClient.getAvailableCourier();
+        log.info("Requesting an available courier");
+
+        var courier = courierClient.getAvailableCourier();
+
+        log.info(
+                "Available courier response received. courierId={}",
+                courier.getId()
+        );
+
+        return courier;
 
     }
 
