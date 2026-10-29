@@ -1,0 +1,16 @@
+
+spring:
+  application:
+    name: ms-notification-service
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: delivery_user
+    password: delivery_pass_123
+    listener:
+      simple:
+        default-requeue-rejected: false
+server:
+  port: 8084
+  address: localhost
+
