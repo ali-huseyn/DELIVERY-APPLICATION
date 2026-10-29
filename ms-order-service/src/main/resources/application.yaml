@@ -1,7 +1,11 @@
 spring:
   application:
     name: ms-order-service
-
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: delivery_user
+    password: delivery_pass_123
   datasource:
     url: jdbc:postgresql://localhost:5433/order-db
     username: postgres
