@@ -17,6 +17,7 @@ import org.example.msorderservice.mapper.OrderHistoryMapper;
 import org.example.msorderservice.mapper.OrderMapper;
 import org.example.msorderservice.repository.OrderHistoryRepository;
 import org.example.msorderservice.repository.OrderRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,6 +33,8 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final OrderHistoryRepository orderHistoryRepository;
     private final OrderHistoryMapper orderHistoryMapper;
+    private final RabbitTemplate rabbitTemplate;
+   
 
 
     private BigDecimal calculateDeliveryPrice() {
@@ -69,7 +72,16 @@ public class OrderService {
         var saveOrder = orderRepository.save(order);
         if (saveOrder.getOrderStatus() == ASSIGNED) {
             courierClient.updateCourierStatus(saveOrder.getCourierId(), CourierStatus.BUSY);
+
+            rabbitTemplate.convertAndSend(
+                    "order.exchange",
+                    "order.created",
+                    saveOrder
+            );
+
         }
+
+
 
         var orderHistoryEntity = new OrderHistoryEntity();
         orderHistoryEntity = orderHistoryMapper.toOrderHistoryEntity(saveOrder);
@@ -102,6 +114,7 @@ public class OrderService {
 
         }
         order.setOrderStatus(PICKED_UP);
+
         log.info("Order picked up for order {}", orderId);
         var saveOrder = orderRepository.save(order);
 
@@ -125,13 +138,17 @@ public class OrderService {
 
         var saveOrder = orderRepository.save(order);
         log.info("Order delivered successfully. orderId={}", orderId);
-        if (saveOrder.getOrderStatus() == DELIVERED) {
-            courierClient.updateCourierStatus(saveOrder.getCourierId(), CourierStatus.FREE);
-        }
-        log.info(
-                "Courier status updated to FREE. courierId={}",
-                saveOrder.getCourierId()
+
+        courierClient.updateCourierStatus(saveOrder.getCourierId(), CourierStatus.FREE);
+
+        log.info("Courier status updated to FREE. courierId={}", saveOrder.getCourierId());
+
+        rabbitTemplate.convertAndSend(
+                "order.exchange",
+                "order.delivered",
+                saveOrder
         );
+
         var orderHistoryEntity = new OrderHistoryEntity();
         orderHistoryEntity = orderHistoryMapper.toOrderHistoryEntity(saveOrder);
         orderHistoryRepository.save(orderHistoryEntity);
@@ -145,10 +162,7 @@ public class OrderService {
 
         var courier = courierClient.getAvailableCourier();
 
-        log.info(
-                "Available courier response received. courierId={}",
-                courier.getId()
-        );
+        log.info("Available courier response received. courierId={}", courier.getId());
 
         return courier;
 
