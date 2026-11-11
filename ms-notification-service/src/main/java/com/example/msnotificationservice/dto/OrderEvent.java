@@ -15,4 +15,6 @@ public class OrderEvent {
     private Long courierId;
     private String courierName;
     private BigDecimal deliveryPrice;
+    private String customerEmail;
+
 }

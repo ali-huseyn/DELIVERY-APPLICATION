@@ -11,5 +11,6 @@ public class OrderRequestDto {
 
     private String pickupAddress;
     private String deliveryAddress;
+    private String email;
 
 }
