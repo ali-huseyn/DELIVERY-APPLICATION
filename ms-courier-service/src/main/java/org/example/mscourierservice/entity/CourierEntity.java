@@ -26,7 +26,6 @@ public class CourierEntity {
     private String phoneNumber;
     @Column(unique = true, nullable = false)
     private String email;
-    private BigDecimal balance=BigDecimal.ZERO;
     private Long rating=0L;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
