@@ -1,7 +1,7 @@
-
 spring:
   application:
     name: ms-notification-service
+
   rabbitmq:
     host: localhost
     port: 5672
@@ -10,7 +10,19 @@ spring:
     listener:
       simple:
         default-requeue-rejected: false
+
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: 051b418219b0d6
+    password: 6d1751087960df
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 server:
   port: 8084
   address: localhost
-

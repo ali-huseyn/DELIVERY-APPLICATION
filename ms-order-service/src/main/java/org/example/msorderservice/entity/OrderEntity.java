@@ -29,6 +29,7 @@ public class OrderEntity {
 
     private String deliveryAddress;
 
+    private String email;
 
     private BigDecimal deliveryPrice;
     private BigDecimal totalPrice;
