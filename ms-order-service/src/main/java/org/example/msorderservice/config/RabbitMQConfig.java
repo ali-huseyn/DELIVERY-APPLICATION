@@ -28,6 +28,13 @@ public class RabbitMQConfig {
                 .to(orderExchange())
                 .with("order.created");
     }
+    @Bean
+    public Binding orderAssignedBinding() {
+        return BindingBuilder
+                .bind(orderQueue())
+                .to(orderExchange())
+                .with("order.assigned");
+    }
 
 
     @Bean

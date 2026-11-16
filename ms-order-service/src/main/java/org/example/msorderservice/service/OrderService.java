@@ -11,6 +11,7 @@ import org.example.msorderservice.dto.OrderResponseDto;
 import org.example.msorderservice.entity.OrderEntity;
 import org.example.msorderservice.entity.OrderHistoryEntity;
 import org.example.msorderservice.enums.CourierStatus;
+import org.example.msorderservice.event.OrderEvent;
 import org.example.msorderservice.exception.InvalidOrderStatusException;
 import org.example.msorderservice.exception.OrderNotFound;
 import org.example.msorderservice.mapper.OrderHistoryMapper;
@@ -68,15 +69,30 @@ public class OrderService {
 
         }
 
-
         var saveOrder = orderRepository.save(order);
+        var event = new OrderEvent(
+                saveOrder.getId(),
+                saveOrder.getCourierId(),
+                saveOrder.getCourierName(),
+                saveOrder.getDeliveryPrice(),
+                saveOrder.getEmail()
+        );
+
+        rabbitTemplate.convertAndSend(
+                "order.exchange",
+                "order.created",
+                event
+        );
+
+
         if (saveOrder.getOrderStatus() == ASSIGNED) {
             courierClient.updateCourierStatus(saveOrder.getCourierId(), CourierStatus.BUSY);
 
+
             rabbitTemplate.convertAndSend(
                     "order.exchange",
-                    "order.created",
-                    saveOrder
+                    "order.assigned",
+                    event
             );
 
         }
@@ -142,11 +158,17 @@ public class OrderService {
         courierClient.updateCourierStatus(saveOrder.getCourierId(), CourierStatus.FREE);
 
         log.info("Courier status updated to FREE. courierId={}", saveOrder.getCourierId());
-
+        var event = new OrderEvent(
+                saveOrder.getId(),
+                saveOrder.getCourierId(),
+                saveOrder.getCourierName(),
+                saveOrder.getDeliveryPrice(),
+                saveOrder.getEmail()
+        );
         rabbitTemplate.convertAndSend(
                 "order.exchange",
                 "order.delivered",
-                saveOrder
+                event
         );
 
         var orderHistoryEntity = new OrderHistoryEntity();

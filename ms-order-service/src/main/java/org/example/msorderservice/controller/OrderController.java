@@ -1,5 +1,6 @@
 package org.example.msorderservice.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.msorderservice.dto.OrderRequestDto;
 import org.example.msorderservice.dto.OrderResponseDto;
@@ -14,7 +15,7 @@ public class OrderController {
 
 
     @PostMapping
-    public OrderResponseDto createOrder(@RequestBody OrderRequestDto orderRequestDto) {
+    public OrderResponseDto createOrder(@Valid @RequestBody OrderRequestDto orderRequestDto) {
         return orderService.createOrder(orderRequestDto);
     }
 
