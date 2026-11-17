@@ -1,12 +1,14 @@
 package com.example.mspaymentservice.service;
 
 import com.example.mspaymentservice.dto.OrderEvent;
-import com.example.mspaymentservice.entity.CourierBalanceEntity;
-import com.example.mspaymentservice.entity.PaymentEntity;
 import com.example.mspaymentservice.exception.OrderAlreadyExistsException;
+import com.example.mspaymentservice.mapper.CourierBalanceMapper;
+import com.example.mspaymentservice.mapper.PaymentMapper;
 import com.example.mspaymentservice.repository.CourierBalanceRepository;
 import com.example.mspaymentservice.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +18,14 @@ import java.time.LocalDateTime;
 import static com.example.mspaymentservice.enums.PaymentStatus.COMPLETED;
 import static com.example.mspaymentservice.enums.PaymentStatus.PENDING;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final CourierBalanceRepository courierBalanceRepository;
+    private final PaymentMapper paymentMapper;
+    private final CourierBalanceMapper courierBalanceMapper;
 
     public void createPendingPayment(OrderEvent event) {
 
@@ -28,12 +33,19 @@ public class PaymentService {
         if (paymentRepository.findByOrderId(event.getOrderId()).isPresent()) {
             throw new OrderAlreadyExistsException("Order already exists");
         }
-        var paymentEntity = new PaymentEntity();
-        paymentEntity.setOrderId(event.getOrderId());
-        paymentEntity.setCourierId(event.getCourierId());
-        paymentEntity.setDeliveryPrice(event.getDeliveryPrice());
-        paymentEntity.setPaymentStatus(PENDING);
-        paymentEntity.setCreatedAt(LocalDateTime.now());
+
+        var paymentEntity = paymentMapper.toEntity(event, PENDING);
+
+        log.info("Mapped orderId: {}", paymentEntity.getOrderId());
+        log.info("Mapped courierId: {}", paymentEntity.getCourierId());
+        log.info("Mapped deliveryPrice: {}", paymentEntity.getDeliveryPrice());
+
+
+//        paymentEntity.setOrderId(event.getOrderId());
+//        paymentEntity.setCourierId(event.getCourierId());
+//        paymentEntity.setDeliveryPrice(event.getDeliveryPrice());
+//        paymentEntity.setPaymentStatus(PENDING);
+//        paymentEntity.setCreatedAt(LocalDateTime.now());
 
         paymentRepository.save(paymentEntity);
 
@@ -42,10 +54,7 @@ public class PaymentService {
     @Transactional
     public void completePayment(OrderEvent event) {
 
-        var payment = paymentRepository.findByOrderId(event.getOrderId())
-                .orElseThrow(() -> new IllegalStateException(
-                        "Payment not found for orderId: " + event.getOrderId()
-                ));
+        var payment = paymentRepository.findByOrderId(event.getOrderId()).orElseThrow(() -> new IllegalStateException("Payment not found for orderId: " + event.getOrderId()));
 
         if (payment.getPaymentStatus().equals(COMPLETED)) {
             return;
@@ -61,22 +70,22 @@ public class PaymentService {
 
         BigDecimal earningAmount = new BigDecimal("3.00");
         payment.setEarningAmount(earningAmount);
-        var courier = courierBalanceRepository.findByCourierId(event.getCourierId())
-                .orElseGet(() -> {
-                    var newBalance = new CourierBalanceEntity();
-                    newBalance.setCourierId(event.getCourierId());
-                    newBalance.setBalance(BigDecimal.ZERO);
-                    newBalance.setTotalBalance(BigDecimal.ZERO);
-                    return newBalance;
-                });
+
+
+        var courier = courierBalanceRepository.findByCourierId(event.getCourierId()).orElseGet(() -> {
+
+            return courierBalanceMapper.toEntity(event);
+
+        });
 
         courier.setBalance(courier.getBalance().add(earningAmount));
         courier.setTotalBalance(courier.getTotalBalance().add(earningAmount));
 
         payment.setPaymentStatus(COMPLETED);
         payment.setCompletedAt(LocalDateTime.now());
-        paymentRepository.save(payment);
-        courierBalanceRepository.save(courier);
+
+//        paymentRepository.save(payment);// save etmeye ehtiyac yoxdur.Avtomatic Save  oldu
+//        courierBalanceRepository.save(courier);
 
 
     }

@@ -24,7 +24,13 @@ public class PaymentConsumer {
 
         log.info("Received payment event: {}", routingKey);
 
+        log.info("RAW MESSAGE: {}", message);
+
         OrderEvent event = objectMapper.readValue(message, OrderEvent.class);
+
+        log.info("Parsed orderId: {}", event.getOrderId());
+        log.info("Parsed courierId: {}", event.getCourierId());
+        log.info("Parsed courierName: {}", event.getCourierName());
 
         switch (routingKey) {
             case "order.created" ->

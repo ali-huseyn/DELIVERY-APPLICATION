@@ -39,7 +39,7 @@ public class PaymentEntity {
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     private LocalDateTime completedAt;
 
