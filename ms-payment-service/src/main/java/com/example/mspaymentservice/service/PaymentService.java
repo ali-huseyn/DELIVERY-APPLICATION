@@ -36,16 +36,8 @@ public class PaymentService {
 
         var paymentEntity = paymentMapper.toEntity(event, PENDING);
 
-        log.info("Mapped orderId: {}", paymentEntity.getOrderId());
-        log.info("Mapped courierId: {}", paymentEntity.getCourierId());
-        log.info("Mapped deliveryPrice: {}", paymentEntity.getDeliveryPrice());
+        log.info("Mapped paymentEntity: orderId={}, courierId={}, deliveryPrice={}", paymentEntity.getOrderId(), paymentEntity.getCourierId(), paymentEntity.getDeliveryPrice());
 
-
-//        paymentEntity.setOrderId(event.getOrderId());
-//        paymentEntity.setCourierId(event.getCourierId());
-//        paymentEntity.setDeliveryPrice(event.getDeliveryPrice());
-//        paymentEntity.setPaymentStatus(PENDING);
-//        paymentEntity.setCreatedAt(LocalDateTime.now());
 
         paymentRepository.save(paymentEntity);
 
@@ -83,9 +75,6 @@ public class PaymentService {
 
         payment.setPaymentStatus(COMPLETED);
         payment.setCompletedAt(LocalDateTime.now());
-
-//        paymentRepository.save(payment);// save etmeye ehtiyac yoxdur.Avtomatic Save  oldu
-//        courierBalanceRepository.save(courier);
 
 
     }
