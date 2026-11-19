@@ -29,11 +29,11 @@ public class NotificationConsumer {
         log.info("ActionLog.receiveMessage.start message: {}", message);
 
         OrderEvent event = objectMapper.readValue(message, OrderEvent.class);
-        emailService.sendEmail(
-                event.getCustomerEmail(),
-                "Order notification",
-                "Your order#" + event + " has been updated."
-        );
+//        emailService.sendEmail(
+//                event.getCustomerEmail(),
+//                "Order notification",
+//                "Your order#" + event + " has been updated."
+//        );
 
         log.info("ActionLog.receiveMessage.end event: {}", event.toString());
     }
