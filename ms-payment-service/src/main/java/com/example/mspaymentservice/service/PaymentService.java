@@ -46,7 +46,10 @@ public class PaymentService {
     @Transactional
     public void completePayment(OrderEvent event) {
 
-        var payment = paymentRepository.findByOrderId(event.getOrderId()).orElseThrow(() -> new IllegalStateException("Payment not found for orderId: " + event.getOrderId()));
+        var payment = paymentRepository.findByOrderId(
+                event.getOrderId()).orElseThrow(()
+                -> new IllegalStateException("Payment not found for orderId: "
+                + event.getOrderId()));
 
         if (payment.getPaymentStatus().equals(COMPLETED)) {
             return;
