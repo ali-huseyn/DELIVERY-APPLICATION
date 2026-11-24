@@ -1,4 +1,4 @@
-package com.example.mspaymentservice;
+package org.example.mspaymentservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
